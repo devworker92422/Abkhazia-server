@@ -1,7 +1,6 @@
 import { Controller, Body, Post, Get, HttpStatus } from "@nestjs/common";
 import { BlogBodyDTO, NewBlogBodyDTO, SEODTO } from "./blog.dto";
 import { BlogService } from "./blog.service";
-import { BLOG_RECENT_COUNT } from "src/constant";
 
 @Controller('/blog')
 
@@ -44,8 +43,11 @@ export class BlogController {
     }
 
     @Post('/updateBlog')
-    async updateBlog() {
-
+    async updateBlog(@Body() body: NewBlogBodyDTO) {
+        await this.blogService.updateBlog(body)
+        return {
+            statusCode: HttpStatus.OK
+        }
     }
 
     @Post('/removeBlog')
@@ -70,7 +72,7 @@ export class BlogController {
         if (seo)
             return {
                 statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Keyword is duplicated"
+                msg: "Ключевое слово уже существует!"
             }
         await this.blogService.insertSEO(body)
         return {

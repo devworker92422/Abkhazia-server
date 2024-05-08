@@ -6,7 +6,7 @@ import { UserBodyDTO } from "./user.dto";
 export class UserController {
     constructor(private userService: UserService) { }
 
-    @Post('/signup')
+    @Post('/')
     async signUp(@Body() body: UserBodyDTO) {
         const cond: UserBodyDTO = { email: body.email };
         const user = this.userService.findOne(cond);

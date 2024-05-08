@@ -13,9 +13,10 @@ export interface SEODTO {
 }
 
 export interface NewBlogBodyDTO {
-    title: string;
-    description: string;
-    bgImg: string;
-    contents: ContentDTO[];
-    seos: SEODTO[];
+    id?: number;
+    title?: string;
+    description?: string;
+    bgImg?: string;
+    contents?: ContentDTO[];
+    seos?: SEODTO[];
 }

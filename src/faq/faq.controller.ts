@@ -80,15 +80,6 @@ export class FAQController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Get('/question/clear')
-    async clearQuestion() {
-        await this.faqService.clearQuestion();
-        return {
-            statusCode: HttpStatus.OK
-        };
-    }
-
-    @UseGuards(AuthGuard('jwt'))
     @Post('/answer/create')
     async createAnswer(@Body() body: AnswerBodyDTO, @Req() req) {
         const userID = req.user.id;
@@ -157,15 +148,6 @@ export class FAQController {
     @Post('/answer/remove')
     async removeAnswer(@Body() body: AnswerBodyDTO) {
         await this.faqService.removeAnswer(body.id);
-        return {
-            statusCode: HttpStatus.OK
-        };
-    }
-
-    @UseGuards(AuthGuard('jwt'))
-    @Get('/answer/clear')
-    async clearAnswer() {
-        await this.faqService.clearAnswer();
         return {
             statusCode: HttpStatus.OK
         };

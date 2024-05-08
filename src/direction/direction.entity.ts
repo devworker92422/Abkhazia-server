@@ -57,6 +57,9 @@ export class DirectionEntity extends BaseEntity {
     @OneToMany(
         () => ContentEntity,
         (content) => content.direction,
+        {
+            cascade: true
+        }
     )
     contents: ContentEntity[]
 

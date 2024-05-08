@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { DataSource, Like } from "typeorm";
+import { DataSource } from "typeorm";
 import { DirectionEntity } from "./direction.entity";
 import { DIRECTION_RECENT_COUNT } from "src/constant";
 import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
@@ -14,18 +14,9 @@ export class DirectionService {
     ) { }
 
     async insert(direction: NewDirectionBodyDTO): Promise<void> {
-        const newDirection = this.dataSource
-            .getRepository(DirectionEntity)
-            .create(direction)
-        for (const content of direction.contents) {
-            const newContent = await this.dataSource
-                .getRepository(ContentEntity)
-                .save(content);
-            newDirection.contents.push(newContent);
-        }
         await this.dataSource
             .getRepository(DirectionEntity)
-            .save(newDirection)
+            .save(direction)
     }
 
     getTotalCount(): Promise<number> {

@@ -17,12 +17,6 @@ export class AttractionService {
         const newAttraction = this.dataSource
             .getRepository(AttractionEntity)
             .create(attraction);
-        for (const content of attraction.contents) {
-            const newContent = await this.dataSource
-                .getRepository(ContentEntity)
-                .save(content);
-            newAttraction.contents.push(newContent);
-        }
         const direction = await this.dataSource
             .getRepository(DirectionEntity)
             .findOne({

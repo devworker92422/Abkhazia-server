@@ -42,6 +42,9 @@ export class AttractionEntity extends BaseEntity {
     @OneToMany(
         () => ContentEntity,
         (content) => content.attraction,
+        {
+            cascade: true,
+        }
     )
     contents: ContentEntity[]
 

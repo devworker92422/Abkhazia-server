@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { BlogEntity, SEOEntity } from "./blog.entity";
 import { BlogBodyDTO, NewBlogBodyDTO, SEODTO } from "./blog.dto";
 import { BLOG_RECENT_COUNT } from "src/constant";
+import { ContentEntity } from "src/content/content.entity";
 
 @Injectable()
 
@@ -99,7 +100,10 @@ export class BlogService {
                     createAt: true
                 },
                 where: {
-                    seos: body.seos
+                    seos: [
+                        { id: 4 },
+                        { id: 1 }
+                    ],
                 },
                 take: body.limit,
                 skip: body.offset,
@@ -131,10 +135,39 @@ export class BlogService {
             });
     }
 
-    async updateBlog(): Promise<void> {
+    async updateBlog(body: NewBlogBodyDTO): Promise<void> {
+        const update = await this.dataSource
+            .getRepository(BlogEntity)
+            .findOne({
+                relations: {
+                    contents: true
+                },
+                where: {
+                    id: body.id
+                }
+            });
+        update.seos = [];
+        for (const seo of body.seos) {
+            const updatedSEO = await this.dataSource
+                .getRepository(SEOEntity)
+                .findOne({
+                    where: { id: seo.id }
+                });
+            update.seos.push(updatedSEO)
+        }
+        update.contents = [];
+        for (const content of body.contents) {
+            const updatedContent = await this.dataSource
+                .getRepository(ContentEntity)
+                .save(content);
+            update.contents.push(updatedContent);
+        }
+        update.title = body.title;
+        update.bgImg = body.bgImg;
+        update.description = body.description;
         await this.dataSource
             .getRepository(BlogEntity)
-            .update({ id: 1 }, { title: "d" });
+            .save(update);
     }
 
     async removeBlog(blogID: number): Promise<void> {
