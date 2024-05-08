@@ -50,7 +50,7 @@ export class DirectionController {
         if (gisCity.total == 0)
             return {
                 statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Название города неверное!"
+                message: "Название города неверное!"
             }
         body.cityID = gisCity.items[0].id;
         await this.directionService.insert(body);

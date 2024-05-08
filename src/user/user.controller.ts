@@ -1,24 +1,49 @@
 import { Controller, Get, Post, Body, HttpStatus } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { UserBodyDTO } from "./user.dto";
+import { UserBodyDTO, UserListBodyDTO } from "./user.dto";
 
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) { }
 
     @Post('/')
-    async signUp(@Body() body: UserBodyDTO) {
-        const cond: UserBodyDTO = { email: body.email };
-        const user = this.userService.findOne(cond);
-        if (user)
-            return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Email is already registered"
-            }
-        await this.userService.signUp(body);
+    async getUsers(@Body() body: UserListBodyDTO) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.userService.findAll()
+        }
+    }
+
+    @Post('/detail')
+    async getUser(@Body() body: UserBodyDTO) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.userService.findOneByID(body.id)
+        }
+    }
+
+    @Post('/remove')
+    async removeUser(@Body() body: UserBodyDTO) {
+        await this.userService.remove(body.id);
         return {
             statusCode: HttpStatus.OK
-        }
+        };
+    }
+
+    @Post('/block')
+    async blockUser(@Body() body: UserBodyDTO) {
+        await this.userService.update(body.id, { status: 1 });
+        return {
+            statusCode: HttpStatus.OK
+        };
+    }
+
+    @Post('/update')
+    async updateUser(@Body() body: UserBodyDTO) {
+        await this.userService.update(body.id, body);
+        return {
+            statusCode: HttpStatus.OK
+        };
     }
 
 

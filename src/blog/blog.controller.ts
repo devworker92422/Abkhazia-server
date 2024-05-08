@@ -72,7 +72,7 @@ export class BlogController {
         if (seo)
             return {
                 statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Ключевое слово уже существует!"
+                message: "Ключевое слово уже существует!"
             }
         await this.blogService.insertSEO(body)
         return {

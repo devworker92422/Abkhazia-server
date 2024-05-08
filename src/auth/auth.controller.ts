@@ -48,7 +48,7 @@ export class AuthController {
                 })
             return {
                 statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Email is already registered"
+                message: "Электронная почта зарегистрирована"
             }
         }
         else
@@ -69,13 +69,11 @@ export class AuthController {
     @UseGuards(AuthGuard('jwt'))
     @Post('/changePwd')
     async changePassword(@Body() body: UserBodyDTO) {
-
+        await this.authService.changePwd(body);
+        return {
+            statusCode: HttpStatus.OK
+        }
     }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Post('/update')
-    async updateUserInfo(@Body() body: UserBodyDTO) {
-
-    }
 
 }
