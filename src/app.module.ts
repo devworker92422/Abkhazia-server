@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
 import { FAQModule } from './faq/faq.module';
@@ -10,6 +11,7 @@ import { WeatherModule } from './weather/weather.module';
 import { AttractionModule } from './attraction/attraction.module';
 import { BlogModule } from './blog/blog.module';
 import { AuthModule } from './auth/auth.module';
+import { CronModule } from './cron/cron.module';
 import { UserEntity } from './user/user.entity';
 import { AnswerEntity } from './faq/faq.entity';
 import { QuestionEntity } from './faq/faq.entity';
@@ -50,6 +52,8 @@ import { join } from 'path';
       synchronize: true,
       autoLoadEntities: true
     }),
+    ScheduleModule.forRoot(),
+    CronModule,
     UserModule,
     FAQModule,
     WeatherModule,

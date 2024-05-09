@@ -15,7 +15,7 @@ import { WeatherController } from "./weather.controller";
     ],
     providers: [WeatherService, GismeteoHttpService],
     controllers: [WeatherController],
-    exports: [GismeteoHttpService]
+    exports: [GismeteoHttpService, WeatherService]
 })
 
 export class WeatherModule { }

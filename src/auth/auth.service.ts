@@ -49,8 +49,8 @@ export class AuthService {
             });
         if (!user)
             throw new UnauthorizedException('Неправильный адрес электронной почты или пароль');
-        if (user.status == 1)
-            throw new UnauthorizedException('Аккаунт заблокирован');
+        // if (user.status == 1)
+        //     throw new UnauthorizedException('Аккаунт заблокирован');
         const isPwdMatched = await bcrypt.compare(password, user.password);
         if (!isPwdMatched)
             throw new UnauthorizedException('Неправильный адрес электронной почты или пароль');
