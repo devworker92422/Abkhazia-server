@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
 import { firstValueFrom, catchError } from "rxjs";
 import { AxiosError } from "axios";
-import { ConfigService } from "@nestjs/config";
 import { GismeteoENVDTO, GismeteoBodyDTO, GismeteoCityBodyDTO } from "./weather.dto";
 import { GISMETEO_URL, GISMETEO_CITY_URL } from "src/constant";
 

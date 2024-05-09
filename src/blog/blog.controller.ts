@@ -1,5 +1,5 @@
 import { Controller, Body, Post, Get, HttpStatus } from "@nestjs/common";
-import { BlogBodyDTO, NewBlogBodyDTO, SEODTO } from "./blog.dto";
+import { BlogBodyDTO, NewBlogBodyDTO, SEODTO, SEOListBodyDTO } from "./blog.dto";
 import { BlogService } from "./blog.service";
 
 @Controller('/blog')
@@ -63,6 +63,15 @@ export class BlogController {
         return {
             statusCode: HttpStatus.OK,
             data: await this.blogService.findAllSEO()
+        }
+    }
+
+    @Post('/getSEOList')
+    async getSEOList(@Body() body: SEOListBodyDTO) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.blogService.findSEOList(body),
+            total: await this.blogService.getSEOTotal()
         }
     }
 

@@ -57,7 +57,6 @@ import { join } from 'path';
     AttractionModule,
     BlogModule,
     AuthModule,
-
   ],
   controllers: [AppController],
   providers: [],

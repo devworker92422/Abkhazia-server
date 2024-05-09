@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Body, Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { BlogEntity, SEOEntity } from "./blog.entity";
-import { BlogBodyDTO, NewBlogBodyDTO, SEODTO } from "./blog.dto";
+import { BlogBodyDTO, NewBlogBodyDTO, SEODTO, SEOListBodyDTO } from "./blog.dto";
 import { BLOG_RECENT_COUNT } from "src/constant";
 import { ContentEntity } from "src/content/content.entity";
 
@@ -16,6 +16,24 @@ export class BlogService {
         await this.dataSource
             .getRepository(SEOEntity)
             .save(seo)
+    }
+
+    getSEOTotal(): Promise<number> {
+        return this.dataSource
+            .getRepository(SEOEntity)
+            .count();
+    }
+
+    findSEOList(@Body() body: SEOListBodyDTO): Promise<SEOEntity[]> {
+        return this.dataSource
+            .getRepository(SEOEntity)
+            .find({
+                order: {
+                    createAt: 'desc'
+                },
+                skip: body.offset,
+                take: body.limit
+            })
     }
 
     findAllSEO(): Promise<SEOEntity[]> {

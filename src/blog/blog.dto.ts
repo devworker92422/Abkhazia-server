@@ -12,6 +12,11 @@ export interface SEODTO {
     keyword?: string;
 }
 
+export interface SEOListBodyDTO {
+    limit: number;
+    offset: number;
+}
+
 export interface NewBlogBodyDTO {
     id?: number;
     title?: string;
