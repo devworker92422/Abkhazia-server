@@ -13,13 +13,21 @@ export class FAQService {
         private dataSource: DataSource
     ) { }
 
-    getTotalCountByUser(): Promise<number> {
+    getTotalCountOfQuestionByUser(): Promise<number> {
         return this.dataSource
             .getRepository(QuestionEntity)
             .count({
                 where: {
-                    approve: true
+                    approve: 1
                 }
+            });
+    }
+
+    getTotalCountOfQuestionByAdmin(whereCond: any): Promise<number> {
+        return this.dataSource
+            .getRepository(QuestionEntity)
+            .count({
+                where: whereCond
             });
     }
 
@@ -69,10 +77,27 @@ export class FAQService {
                     }
                 },
                 where: {
-                    approve: true,
+                    approve: 1,
                 },
                 take: FAQ_RECENT_COUNT
             });
+    }
+
+    findAllQuestionByAdmin(limit: number, offset: number, whereCond: Object): Promise<QuestionEntity[]> {
+        return this.dataSource
+            .getRepository(QuestionEntity)
+            .find({
+                relations: {
+                    user: true,
+                    answers: true
+                },
+                order: {
+                    createAt: 'DESC'
+                },
+                where: whereCond,
+                skip: offset,
+                take: limit
+            })
     }
 
     findAllQuestionByUser(limit: number, offset: number): Promise<QuestionEntity[]> {
@@ -102,11 +127,32 @@ export class FAQService {
                     createAt: 'DESC',
                 },
                 where: {
-                    approve: true,
+                    approve: 1,
                 },
                 skip: offset,
                 take: limit
             });
+    }
+
+    findOneQuestionByAdmin(questionID: number): Promise<QuestionEntity> {
+        return this.dataSource
+            .getRepository(QuestionEntity)
+            .findOne({
+                relations: {
+                    user: true,
+                    answers: {
+                        user: true
+                    }
+                },
+                order: {
+                    answers: {
+                        rating: 'DESC',
+                    }
+                },
+                where: {
+                    id: questionID
+                }
+            })
     }
 
     findOneQuestionByUser(questionID: number): Promise<QuestionEntity> {
@@ -166,12 +212,6 @@ export class FAQService {
             .delete(id);
     }
 
-    async clearQuestion(): Promise<void> {
-        await this.dataSource
-            .getRepository(QuestionEntity)
-            .clear();
-    }
-
     async insertAnswer(body: AnswerBodyDTO, userID: number): Promise<void> {
         const answer = this.dataSource
             .getRepository(AnswerEntity)
@@ -195,14 +235,42 @@ export class FAQService {
         await answer.save();
     }
 
+    getTotalCountOfAnswerByAdmin(whereCond: Object): Promise<number> {
+        return this.dataSource
+            .getRepository(AnswerEntity)
+            .count({
+                where: whereCond
+            })
+    }
+
     findOneAnswer(id: number): Promise<AnswerEntity> {
         return this.dataSource
             .getRepository(AnswerEntity)
             .findOne({
+                relations: {
+                    user: true
+                },
                 where: {
                     id
                 }
             });
+    }
+
+    findAllAnswer(limit: number, offset: number, whereCond: Object): Promise<AnswerEntity[]> {
+        return this.dataSource
+            .getRepository(AnswerEntity)
+            .find({
+                relations: {
+                    user: true,
+                    question: true
+                },
+                where: whereCond,
+                order: {
+                    createAt: "DESC"
+                },
+                skip: offset,
+                take: limit
+            })
     }
 
     async updateAnswer(id: number, update: AnswerBodyDTO): Promise<void> {
@@ -215,12 +283,6 @@ export class FAQService {
         await this.dataSource
             .getRepository(AnswerEntity)
             .delete(id);
-    }
-
-    async clearAnswer(): Promise<void> {
-        await this.dataSource
-            .getRepository(AnswerEntity)
-            .clear();
     }
 
 }

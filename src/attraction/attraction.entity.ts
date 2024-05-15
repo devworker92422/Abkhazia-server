@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import { ContentEntity } from "src/content/content.entity";
 import { DirectionEntity } from "src/direction/direction.entity";
+import { ImageEntity } from "src/image/image.entity";
 
 @Entity()
 
@@ -47,6 +48,12 @@ export class AttractionEntity extends BaseEntity {
         }
     )
     contents: ContentEntity[]
+
+    @OneToMany(
+        () => ImageEntity,
+        (image) => image.attraction
+    )
+    images: ImageEntity[];
 
     @ManyToOne(
         () => DirectionEntity,

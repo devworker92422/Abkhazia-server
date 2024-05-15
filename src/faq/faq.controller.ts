@@ -9,7 +9,8 @@ import {
 } from "@nestjs/common";
 import { FAQService } from "./faq.service";
 import { AuthGuard } from "@nestjs/passport";
-import { FAQBodyDTO, QuestionBodyDTO, AnswerBodyDTO } from "./faq.dto";
+import { FAQBodyDTO, QuestionBodyDTO, AnswerBodyDTO, FAQListBodyDTO } from "./faq.dto";
+import { Like } from "typeorm";
 
 
 @Controller('faq')
@@ -33,13 +34,38 @@ export class FAQController {
         };
     }
 
+    @Post('/questionByAdmin')
+    async getQuestionsByAdmin(@Body() body: FAQListBodyDTO) {
+        let whereCond = {};
+        if (body.approve)
+            whereCond['approve'] = body.approve;
+        if (body.text)
+            whereCond['questionText'] = Like(`%${body.text}%`);
+        if (body.userID)
+            whereCond['user'] = { id: body.userID };
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.faqService.findAllQuestionByAdmin(body.limit, body.offset, whereCond),
+            total: await this.faqService.getTotalCountOfQuestionByAdmin(whereCond)
+        }
+    }
+
     @Post('/question')
     async getQuestions(@Body() body: FAQBodyDTO) {
         return {
             statusCode: HttpStatus.OK,
             data: await this.faqService.findAllQuestionByUser(body.limit, body.offset),
-            total: await this.faqService.getTotalCountByUser()
+            total: await this.faqService.getTotalCountOfQuestionByUser()
         };
+    }
+
+
+    @Post('/question/detailByAdmin')
+    async getFAQByAdmin(@Body() body: QuestionBodyDTO) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.faqService.findOneQuestionByAdmin(body.id)
+        }
     }
 
     @Post('/question/detail')
@@ -52,9 +78,30 @@ export class FAQController {
 
     @UseGuards(AuthGuard('jwt'))
     @Post('/question/approve')
-    async approveQuestion(@Body() body: QuestionBodyDTO) {
-        let update: QuestionBodyDTO = { approve: true };
-        console
+    async approveQuestion(@Body() body: QuestionBodyDTO, @Req() req) {
+        let update: QuestionBodyDTO = { approve: 1 };
+        if (req.user.type != 1) {
+            return {
+                statusCode: HttpStatus.FORBIDDEN,
+                msg: "Ошибка разрешения"
+            }
+        }
+        await this.faqService.updateQuestion(body.id, update);
+        return {
+            statusCode: HttpStatus.OK,
+        };
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/question/disapprove')
+    async disApproveQuestion(@Body() body: QuestionBodyDTO, @Req() req) {
+        let update: QuestionBodyDTO = { approve: 2 };
+        if (req.user.type != 1) {
+            return {
+                statusCode: HttpStatus.FORBIDDEN,
+                msg: "Ошибка разрешения"
+            }
+        }
         await this.faqService.updateQuestion(body.id, update);
         return {
             statusCode: HttpStatus.OK,
@@ -87,11 +134,28 @@ export class FAQController {
         if (userID == question.user.id)
             return {
                 statusCode: HttpStatus.BAD_REQUEST,
-                msg: "You are owner of the question"
+                msg: "Вы являетесь владельцем вопроса"
             }
         await this.faqService.insertAnswer(body, req.user.id)
         return {
             statusCode: HttpStatus.OK,
+        }
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/answer')
+    async getAnswersOfQuestion(@Body() body: FAQListBodyDTO, @Req() req) {
+        let whereCond = {};
+        if (body.approve)
+            whereCond['approve'] = body.approve;
+        if (body.text)
+            whereCond['answerText'] = Like(`%${body.text}%`);
+        if (body.userID)
+            whereCond['user'] = { id: body.userID };
+        return {
+            statusCode: HttpStatus.OK,
+            total: await this.faqService.getTotalCountOfAnswerByAdmin(whereCond),
+            data: await this.faqService.findAllAnswer(body.limit, body.offset, whereCond)
         }
     }
 
@@ -104,7 +168,7 @@ export class FAQController {
         if (userID == answer.user.id)
             return {
                 statusCode: HttpStatus.BAD_REQUEST,
-                msg: "You are owner of the answer"
+                msg: "Вы являетесь владельцем ответа"
             }
         const flag = rating.find((a) => { return a == userID });
         if (flag) {
@@ -125,10 +189,26 @@ export class FAQController {
         if (req.user.type != 1) {
             return {
                 statusCode: HttpStatus.FORBIDDEN,
-                msg: "Permission Error"
+                msg: "Ошибка разрешения"
             }
         }
-        let update: AnswerBodyDTO = { approve: true };
+        let update: AnswerBodyDTO = { approve: 1 };
+        await this.faqService.updateAnswer(body.id, update);
+        return {
+            statusCode: HttpStatus.OK,
+        };
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/answer/disApprove')
+    async disApproveAnswer(@Body() body: AnswerBodyDTO, @Req() req) {
+        if (req.user.type != 1) {
+            return {
+                statusCode: HttpStatus.FORBIDDEN,
+                msg: "Ошибка разрешения"
+            }
+        }
+        let update: AnswerBodyDTO = { approve: 2 };
         await this.faqService.updateAnswer(body.id, update);
         return {
             statusCode: HttpStatus.OK,

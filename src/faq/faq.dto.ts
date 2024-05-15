@@ -1,7 +1,7 @@
 export interface QuestionBodyDTO {
     id?: number;
     questionText?: string;
-    approve?: boolean;
+    approve?: number;
 }
 
 
@@ -10,10 +10,18 @@ export interface AnswerBodyDTO {
     questionID?: number;
     answerText?: string;
     rating?: number[];
-    approve?: boolean;
+    approve?: number;
 }
 
 export interface FAQBodyDTO {
     limit: number;
     offset: number;
+}
+
+export interface FAQListBodyDTO {
+    limit: number;
+    offset: number;
+    userID?: number;
+    text?: string;
+    approve?: number;
 }

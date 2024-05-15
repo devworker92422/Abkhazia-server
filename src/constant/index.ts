@@ -4,4 +4,5 @@ export const FAQ_RECENT_COUNT = 4;
 export const DIRECTION_RECENT_COUNT = 6;
 export const BLOG_RECENT_COUNT = 6;
 export const ATTRACTION_RECENT_COUNT = 6;
+export const MAX_IMAGE_COUNT = 10;
 export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD';

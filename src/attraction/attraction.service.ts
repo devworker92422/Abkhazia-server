@@ -13,7 +13,7 @@ export class AttractionService {
         private dataSource: DataSource
     ) { }
 
-    async insert(attraction: NewAttractionBodyDTO): Promise<void> {
+    async insert(attraction: NewAttractionBodyDTO): Promise<AttractionEntity> {
         const newAttraction = this.dataSource
             .getRepository(AttractionEntity)
             .create(attraction);
@@ -25,7 +25,7 @@ export class AttractionService {
                 }
             });
         newAttraction.direction = direction;
-        await this.dataSource
+        return await this.dataSource
             .getRepository(AttractionEntity)
             .save(newAttraction);
     }
@@ -88,6 +88,7 @@ export class AttractionService {
             .findOne({
                 relations: {
                     contents: true,
+                    images: true
                 },
                 select: {
                     id: true,
@@ -101,6 +102,10 @@ export class AttractionService {
                         id: true,
                         question: true,
                         content: true
+                    },
+                    images: {
+                        id: true,
+                        url: true
                     }
                 },
                 where: {
@@ -109,7 +114,7 @@ export class AttractionService {
             })
     }
 
-    async update(attraction: NewAttractionBodyDTO): Promise<void> {
+    async update(attraction: NewAttractionBodyDTO): Promise<AttractionEntity> {
         const contents = attraction.contents;
         delete attraction.contents;
         const update = await this.dataSource
@@ -134,7 +139,7 @@ export class AttractionService {
                 .save(content);
             update.contents.push(newContent);
         }
-        await this.dataSource
+        return await this.dataSource
             .getRepository(AttractionEntity)
             .save(update);
     }

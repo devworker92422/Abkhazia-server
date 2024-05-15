@@ -1,9 +1,18 @@
-import { Controller, Get, Post, Body, HttpStatus } from "@nestjs/common";
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    HttpStatus,
+} from "@nestjs/common";
 import * as moment from 'moment';
 import { GismeteoHttpService } from "src/weather/gismeteo.httpService";
 import { DirectionService } from "./direction.service";
+import { ImageService } from "src/image/image.service";
 import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
 import { STANDARD_DATE_FORMAT } from "src/constant";
+import { ImageEntity } from "src/image/image.entity";
+
 
 
 @Controller('direction')
@@ -12,7 +21,8 @@ export class DirectionController {
 
     constructor(
         private directionService: DirectionService,
-        private gismeteoHttpService: GismeteoHttpService
+        private gismeteoHttpService: GismeteoHttpService,
+        private imageService: ImageService
     ) { }
 
     @Post('/')
@@ -44,6 +54,7 @@ export class DirectionController {
         }
     }
 
+
     @Post('/insert')
     async insertNewDirection(@Body() body: NewDirectionBodyDTO) {
         const gisCity = await this.gismeteoHttpService.getCityInfo(body.name);
@@ -53,7 +64,13 @@ export class DirectionController {
                 message: "Название города неверное!"
             }
         body.cityID = gisCity.items[0].id;
-        await this.directionService.insert(body);
+        const newDirection = await this.directionService.insert(body);
+        for (const image of body.images) {
+            const updateImage = ImageEntity.create();
+            updateImage.id = image.id
+            updateImage.direction = newDirection;
+            await this.imageService.update(updateImage);
+        }
         return {
             statusCode: HttpStatus.OK,
         }
@@ -61,7 +78,13 @@ export class DirectionController {
 
     @Post('/update')
     async updateDirection(@Body() body: NewDirectionBodyDTO) {
-        await this.directionService.update(body)
+        const updatedDirection = await this.directionService.update(body);
+        for (const image of body.images) {
+            const updatedImg = ImageEntity.create();
+            updatedImg.id = image.id;
+            updatedImg.direction = updatedDirection;
+            this.imageService.update(updatedImg);
+        }
         return {
             statusCode: HttpStatus.OK,
         }

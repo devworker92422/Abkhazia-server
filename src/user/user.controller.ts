@@ -7,7 +7,16 @@ export class UserController {
     constructor(private userService: UserService) { }
 
     @Post('/')
-    async getUsers(@Body() body: UserListBodyDTO) {
+    async getUserList(@Body() body: UserListBodyDTO) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.userService.findAll(),
+            total: await this.userService.getTotalCount()
+        }
+    }
+
+    @Get('/')
+    async getUsers() {
         return {
             statusCode: HttpStatus.OK,
             data: await this.userService.findAll()
@@ -25,14 +34,6 @@ export class UserController {
     @Post('/remove')
     async removeUser(@Body() body: UserBodyDTO) {
         await this.userService.remove(body.id);
-        return {
-            statusCode: HttpStatus.OK
-        };
-    }
-
-    @Post('/block')
-    async blockUser(@Body() body: UserBodyDTO) {
-        await this.userService.update(body.id, { status: 1 });
         return {
             statusCode: HttpStatus.OK
         };

@@ -1,4 +1,5 @@
 import { ContentDTO } from "src/content/content.dto";
+import { ImageBodyDTO } from "src/image/image.dto";
 
 export interface BlogBodyDTO {
     id?: number;
@@ -24,4 +25,5 @@ export interface NewBlogBodyDTO {
     bgImg?: string;
     contents?: ContentDTO[];
     seos?: SEODTO[];
+    images?: ImageBodyDTO[];
 }

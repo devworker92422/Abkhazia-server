@@ -10,6 +10,7 @@ import {
 import { WeatherEntity } from "src/weather/weather.entity";
 import { ContentEntity } from "src/content/content.entity";
 import { AttractionEntity } from "src/attraction/attraction.entity";
+import { ImageEntity } from "src/image/image.entity";
 
 @Entity()
 
@@ -68,6 +69,15 @@ export class DirectionEntity extends BaseEntity {
         (attraction) => attraction.direction
     )
     attractions: AttractionEntity[]
+
+    @OneToMany(
+        () => ImageEntity,
+        (image) => image.direction,
+        {
+            cascade: true
+        }
+    )
+    images: ImageEntity[]
 
 }
 

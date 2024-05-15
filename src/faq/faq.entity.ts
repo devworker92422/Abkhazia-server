@@ -11,8 +11,8 @@ export class QuestionEntity extends BaseEntity {
     @Column('longtext')
     questionText: string;
 
-    @Column({ default: false })
-    approve: boolean;
+    @Column({ default: 0 })
+    approve: number;
 
     @OneToMany(
         () => AnswerEntity,
@@ -47,8 +47,8 @@ export class AnswerEntity extends BaseEntity {
     @Column('longtext')
     answerText: string;
 
-    @Column({ default: false })
-    approve: boolean;
+    @Column({ default: 0 })
+    approve: number;
 
     @Column("simple-array")
     rating: number[];

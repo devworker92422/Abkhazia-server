@@ -12,6 +12,14 @@ export class UserService {
         private dataSource: DataSource,
     ) { }
 
+    getTotalCount(whereCond?: Object): Promise<number> {
+        return this.dataSource
+            .getRepository(UserEntity)
+            .count({
+                where: whereCond ? whereCond : {}
+            })
+    }
+
     findAll(): Promise<UserEntity[]> {
         return this.dataSource
             .getRepository(UserEntity)
@@ -25,11 +33,9 @@ export class UserService {
                     updateAt: true,
                     email: true,
                     phoneNumber: true,
-                    status: true
+                    status: true,
+                    type: true
                 },
-                where: {
-                    type: 2
-                }
             });
     }
 

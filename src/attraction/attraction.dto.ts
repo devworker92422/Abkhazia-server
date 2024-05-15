@@ -1,4 +1,5 @@
 import { ContentDTO } from "src/content/content.dto";
+import { ImageBodyDTO } from "src/image/image.dto";
 
 export interface NewAttractionBodyDTO {
     id?: number;
@@ -9,6 +10,7 @@ export interface NewAttractionBodyDTO {
     latitude?: number;
     longitude?: number;
     contents?: ContentDTO[];
+    images?: ImageBodyDTO[]
 }
 
 export interface AttractionBodyDTO {

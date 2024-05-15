@@ -4,6 +4,7 @@ import { DirectionEntity } from "./direction.entity";
 import { DIRECTION_RECENT_COUNT } from "src/constant";
 import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
 import { ContentEntity } from "src/content/content.entity";
+import { ImageEntity } from "src/image/image.entity";
 
 @Injectable()
 
@@ -13,8 +14,8 @@ export class DirectionService {
         private dataSource: DataSource
     ) { }
 
-    async insert(direction: NewDirectionBodyDTO): Promise<void> {
-        await this.dataSource
+    async insert(direction: NewDirectionBodyDTO): Promise<DirectionEntity> {
+        return await this.dataSource
             .getRepository(DirectionEntity)
             .save(direction)
     }
@@ -64,7 +65,8 @@ export class DirectionService {
             .findOne({
                 relations: {
                     contents: true,
-                    weathers: true
+                    weathers: true,
+                    images: true
                 },
                 select: {
                     id: true,
@@ -88,6 +90,10 @@ export class DirectionService {
                         comfortTemp: true,
                         waterTemp: true,
                         airTemp: true
+                    },
+                    images: {
+                        id: true,
+                        url: true
                     }
                 },
                 where: {
@@ -96,7 +102,7 @@ export class DirectionService {
             });
     }
 
-    async update(direction: NewDirectionBodyDTO): Promise<void> {
+    async update(direction: NewDirectionBodyDTO): Promise<DirectionEntity> {
         const updatedDirection = await this.dataSource
             .getRepository(DirectionEntity)
             .findOne({
@@ -124,9 +130,9 @@ export class DirectionService {
                 .save(content);
             updatedDirection.contents.push(newContent);
         }
-        await this.dataSource
+        return await this.dataSource
             .getRepository(DirectionEntity)
-            .save(updatedDirection)
+            .save(updatedDirection);
     }
 
     async remove(directionID: number) {

@@ -1,12 +1,15 @@
 import { Controller, Body, Post, Get, HttpStatus } from "@nestjs/common";
 import { BlogBodyDTO, NewBlogBodyDTO, SEODTO, SEOListBodyDTO } from "./blog.dto";
 import { BlogService } from "./blog.service";
+import { ImageService } from "src/image/image.service";
+import { ImageEntity } from "src/image/image.entity";
 
 @Controller('/blog')
 
 export class BlogController {
     constructor(
-        private blogService: BlogService
+        private blogService: BlogService,
+        private imageService: ImageService
     ) { }
 
     @Get('/recentBlog')
@@ -19,7 +22,13 @@ export class BlogController {
 
     @Post('/createBlog')
     async insertBlog(@Body() body: NewBlogBodyDTO) {
-        await this.blogService.insertBlog(body);
+        const newBlog = await this.blogService.insertBlog(body);
+        for (const image of body.images) {
+            const updatedImg = ImageEntity.create();
+            updatedImg.id = image.id;
+            updatedImg.blog = newBlog;
+            await this.imageService.update(updatedImg);
+        }
         return {
             statusCode: HttpStatus.OK,
         }
@@ -44,7 +53,13 @@ export class BlogController {
 
     @Post('/updateBlog')
     async updateBlog(@Body() body: NewBlogBodyDTO) {
-        await this.blogService.updateBlog(body)
+        const updatedBlog = await this.blogService.updateBlog(body);
+        for (const image of body.images) {
+            const updatedImg = ImageEntity.create();
+            updatedImg.id = image.id;
+            updatedImg.blog = updatedBlog;
+            await this.imageService.update(updatedImg);
+        }
         return {
             statusCode: HttpStatus.OK
         }

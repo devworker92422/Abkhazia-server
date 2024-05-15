@@ -74,8 +74,8 @@ export class BlogService {
 
 
 
-    async insertBlog(blog: NewBlogBodyDTO): Promise<void> {
-        await this.dataSource
+    async insertBlog(blog: NewBlogBodyDTO): Promise<BlogEntity> {
+        return await this.dataSource
             .getRepository(BlogEntity)
             .save(blog)
     }
@@ -118,10 +118,7 @@ export class BlogService {
                     createAt: true
                 },
                 where: {
-                    seos: [
-                        { id: 4 },
-                        { id: 1 }
-                    ],
+                    seos: body.seos,
                 },
                 take: body.limit,
                 skip: body.offset,
@@ -133,7 +130,8 @@ export class BlogService {
             .getRepository(BlogEntity)
             .findOne({
                 relations: {
-                    contents: true
+                    contents: true,
+                    images: true
                 },
                 select: {
                     id: true,
@@ -145,6 +143,10 @@ export class BlogService {
                         id: true,
                         question: true,
                         content: true
+                    },
+                    images: {
+                        id: true,
+                        url: true
                     }
                 },
                 where: {
@@ -153,7 +155,7 @@ export class BlogService {
             });
     }
 
-    async updateBlog(body: NewBlogBodyDTO): Promise<void> {
+    async updateBlog(body: NewBlogBodyDTO): Promise<BlogEntity> {
         const update = await this.dataSource
             .getRepository(BlogEntity)
             .findOne({
@@ -183,7 +185,7 @@ export class BlogService {
         update.title = body.title;
         update.bgImg = body.bgImg;
         update.description = body.description;
-        await this.dataSource
+        return await this.dataSource
             .getRepository(BlogEntity)
             .save(update);
     }

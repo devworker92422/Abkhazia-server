@@ -10,6 +10,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import { ContentEntity } from "src/content/content.entity";
+import { ImageEntity } from "src/image/image.entity";
 
 @Entity()
 
@@ -35,6 +36,12 @@ export class BlogEntity extends BaseEntity {
         }
     )
     contents: ContentEntity[];
+
+    @OneToMany(
+        () => ImageEntity,
+        (image) => image.blog
+    )
+    images: ImageEntity[];
 
     @ManyToMany(
         () => SEOEntity,

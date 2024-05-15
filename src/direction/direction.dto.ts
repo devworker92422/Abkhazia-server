@@ -1,4 +1,5 @@
 import { ContentDTO } from "src/content/content.dto";
+import { ImageBodyDTO } from "src/image/image.dto";
 
 export interface DirectionBodyDTO {
     id?: number;
@@ -21,4 +22,5 @@ export interface NewDirectionBodyDTO {
     latitude?: number;
     longitude?: number;
     contents?: ContentDTO[];
+    images?: ImageBodyDTO[];
 }
