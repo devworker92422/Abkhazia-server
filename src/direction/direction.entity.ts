@@ -37,7 +37,7 @@ export class DirectionEntity extends BaseEntity {
     @Column('double')
     latitude: number;
 
-    @Column('double')
+    @Column('double', { default: "" })
     longitude: number;
 
     @Column('text')
