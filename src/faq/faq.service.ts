@@ -224,6 +224,7 @@ export class FAQService {
                     id: userID
                 }
             });
+        answer.rating = [];
         answer.question = await this.dataSource
             .getRepository(QuestionEntity)
             .findOne({
