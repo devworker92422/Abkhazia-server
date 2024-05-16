@@ -94,6 +94,7 @@ export class AttractionService {
                     id: true,
                     name: true,
                     description: true,
+                    heading: true,
                     bgImg: true,
                     latitude: true,
                     longitude: true,
