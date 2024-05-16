@@ -1,6 +1,5 @@
 import { Entity, BaseEntity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm";
 import { UserEntity } from "src/user/user.entity";
-import { Expose } from "class-transformer";
 
 @Entity()
 export class QuestionEntity extends BaseEntity {

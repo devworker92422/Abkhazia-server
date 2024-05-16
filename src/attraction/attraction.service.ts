@@ -128,6 +128,9 @@ export class AttractionService {
                     id: attraction.id
                 }
             });
+        update.direction = await this.dataSource
+            .getRepository(DirectionEntity)
+            .findOne({ where: { id: attraction.directionID } });
         update.name = attraction.name;
         update.bgImg = attraction.bgImg;
         update.description = attraction.description;
