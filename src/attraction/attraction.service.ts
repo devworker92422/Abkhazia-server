@@ -130,6 +130,7 @@ export class AttractionService {
         update.name = attraction.name;
         update.bgImg = attraction.bgImg;
         update.description = attraction.description;
+        update.heading = attraction.heading;
         update.latitude = attraction.latitude;
         update.longitude = attraction.longitude;
         update.contents = [];

@@ -34,6 +34,9 @@ export class AttractionEntity extends BaseEntity {
     @Column('double')
     longitude: number;
 
+    @Column('text')
+    heading: string;
+
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     public createAt: Date;
 

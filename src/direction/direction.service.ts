@@ -4,7 +4,6 @@ import { DirectionEntity } from "./direction.entity";
 import { DIRECTION_RECENT_COUNT } from "src/constant";
 import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
 import { ContentEntity } from "src/content/content.entity";
-import { ImageEntity } from "src/image/image.entity";
 
 @Injectable()
 
@@ -49,7 +48,8 @@ export class DirectionService {
                 select: {
                     id: true,
                     name: true,
-                    bgImg: true
+                    bgImg: true,
+                    heading: true
                 },
                 order: {
                     name: 'ASC'
@@ -77,6 +77,7 @@ export class DirectionService {
                     createAt: true,
                     latitude: true,
                     longitude: true,
+                    heading: true,
                     contents: {
                         id: true,
                         question: true,

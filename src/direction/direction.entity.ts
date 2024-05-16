@@ -40,7 +40,7 @@ export class DirectionEntity extends BaseEntity {
     @Column('double')
     longitude: number;
 
-    @Column('text', { default: "" })
+    @Column('text')
     heading: string;
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })

@@ -9,6 +9,7 @@ export interface NewAttractionBodyDTO {
     bgImg?: string;
     latitude?: number;
     longitude?: number;
+    heading?: string;
     contents?: ContentDTO[];
     images?: ImageBodyDTO[]
 }
