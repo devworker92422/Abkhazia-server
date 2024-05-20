@@ -3,8 +3,13 @@ import {
     Get,
     Post,
     Body,
+    Req,
     HttpStatus,
+    UseGuards,
+    BadRequestException,
+    UnauthorizedException
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import * as moment from 'moment';
 import { GismeteoHttpService } from "src/weather/gismeteo.httpService";
 import { DirectionService } from "./direction.service";
@@ -56,13 +61,17 @@ export class DirectionController {
 
 
     @Post('/insert')
-    async insertNewDirection(@Body() body: NewDirectionBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async insertNewDirection(
+        @Body() body: NewDirectionBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1) {
+            throw new UnauthorizedException('Нет разрешения на доступ')
+        }
         const gisCity = await this.gismeteoHttpService.getCityInfo(body.name);
         if (gisCity.total == 0)
-            return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                message: "Название города неверное!"
-            }
+            throw new BadRequestException('Название города неверное!')
         body.cityID = gisCity.items[0].id;
         const newDirection = await this.directionService.insert(body);
         for (const image of body.images) {
@@ -77,7 +86,14 @@ export class DirectionController {
     }
 
     @Post('/update')
-    async updateDirection(@Body() body: NewDirectionBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async updateDirection(
+        @Body() body: NewDirectionBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1) {
+            throw new UnauthorizedException('Нет разрешения на доступ')
+        }
         const updatedDirection = await this.directionService.update(body);
         for (const image of body.images) {
             const updatedImg = ImageEntity.create();
@@ -91,7 +107,14 @@ export class DirectionController {
     }
 
     @Post('/remove')
-    async removeDirection(@Body() body: DirectionBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async removeDirection(
+        @Body() body: DirectionBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1) {
+            throw new UnauthorizedException('Нет разрешения на доступ')
+        }
         await this.directionService.remove(body.id);
         return {
             statusCode: HttpStatus.OK,

@@ -1,4 +1,14 @@
-import { Controller, Body, Post, Get, HttpStatus } from "@nestjs/common";
+import {
+    Controller,
+    Body,
+    Post,
+    Get,
+    Req,
+    HttpStatus,
+    UseGuards,
+    UnauthorizedException
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { BlogBodyDTO, NewBlogBodyDTO, SEODTO, SEOListBodyDTO } from "./blog.dto";
 import { BlogService } from "./blog.service";
 import { ImageService } from "src/image/image.service";
@@ -21,7 +31,13 @@ export class BlogController {
     }
 
     @Post('/createBlog')
-    async insertBlog(@Body() body: NewBlogBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async insertBlog(
+        @Body() body: NewBlogBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1)
+            throw new UnauthorizedException('Нет разрешения на доступ')
         const newBlog = await this.blogService.insertBlog(body);
         for (const image of body.images) {
             const updatedImg = ImageEntity.create();
@@ -52,7 +68,13 @@ export class BlogController {
     }
 
     @Post('/updateBlog')
-    async updateBlog(@Body() body: NewBlogBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async updateBlog(
+        @Body() body: NewBlogBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1)
+            throw new UnauthorizedException('Нет разрешения на доступ')
         const updatedBlog = await this.blogService.updateBlog(body);
         for (const image of body.images) {
             const updatedImg = ImageEntity.create();
@@ -66,7 +88,13 @@ export class BlogController {
     }
 
     @Post('/removeBlog')
-    async removeBlog(@Body() body: BlogBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async removeBlog(
+        @Body() body: BlogBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1)
+            throw new UnauthorizedException('Нет разрешения на доступ')
         await this.blogService.removeBlog(body.id);
         return {
             statusCode: HttpStatus.OK
@@ -91,7 +119,13 @@ export class BlogController {
     }
 
     @Post('/createSEO')
-    async insertSEO(@Body() body: SEODTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async insertSEO(
+        @Body() body: SEODTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1)
+            throw new UnauthorizedException('Нет разрешения на доступ')
         const seo = await this.blogService.findOneSEO(body.keyword);
         if (seo)
             return {
@@ -105,7 +139,13 @@ export class BlogController {
     }
 
     @Post('/updateSEO')
-    async updateSEO(@Body() body: SEODTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async updateSEO(
+        @Body() body: SEODTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1)
+            throw new UnauthorizedException('Нет разрешения на доступ')
         await this.blogService.updateSEO(body)
         return {
             statusCode: HttpStatus.OK
@@ -113,7 +153,13 @@ export class BlogController {
     }
 
     @Post('/removeSEO')
-    async removeSEO(@Body() body: SEODTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async removeSEO(
+        @Body() body: SEODTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1)
+            throw new UnauthorizedException('Нет разрешения на доступ')
         await this.blogService.removeSEO(body.id);
         return {
             statusCode: HttpStatus.OK

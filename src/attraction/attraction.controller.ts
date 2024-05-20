@@ -1,4 +1,14 @@
-import { Controller, HttpStatus, Post, Get, Body } from "@nestjs/common";
+import {
+    Controller,
+    HttpStatus,
+    Post,
+    Get,
+    Body,
+    Req,
+    UseGuards,
+    UnauthorizedException
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { AttractionService } from "./attraction.service";
 import { ImageService } from "src/image/image.service";
 import { ImageEntity } from "src/image/image.entity";
@@ -13,7 +23,14 @@ export class AttractionController {
     ) { }
 
     @Post('/insert')
-    async insertNewAttraction(@Body() body: NewAttractionBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async insertNewAttraction(
+        @Body() body: NewAttractionBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1) {
+            throw new UnauthorizedException('Нет разрешения на доступ')
+        }
         const newAttraction = await this.attractionService.insert(body);
         for (const image of body.images) {
             const updatedImage = ImageEntity.create();
@@ -52,7 +69,14 @@ export class AttractionController {
     }
 
     @Post('/update')
-    async updateAttraction(@Body() body: NewAttractionBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async updateAttraction(
+        @Body() body: NewAttractionBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1) {
+            throw new UnauthorizedException('Нет разрешения на доступ')
+        }
         const updatedDirection = await this.attractionService.update(body);
         for (const image of body.images) {
             const updatedImage = ImageEntity.create();
@@ -66,7 +90,14 @@ export class AttractionController {
     }
 
     @Post('/remove')
-    async removeAttraction(@Body() body: AttractionBodyDTO) {
+    @UseGuards(AuthGuard('jwt'))
+    async removeAttraction(
+        @Body() body: AttractionBodyDTO,
+        @Req() req
+    ) {
+        if (req.user.type != 1) {
+            throw new UnauthorizedException('Нет разрешения на доступ')
+        }
         await this.attractionService.remove(body.attractionID);
         return {
             statusCode: HttpStatus.OK

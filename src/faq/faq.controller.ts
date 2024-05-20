@@ -5,7 +5,9 @@ import {
     HttpStatus,
     Body,
     UseGuards,
-    Req
+    Req,
+    UnauthorizedException,
+    BadRequestException
 } from "@nestjs/common";
 import { FAQService } from "./faq.service";
 import { AuthGuard } from "@nestjs/passport";
@@ -81,10 +83,7 @@ export class FAQController {
     async approveQuestion(@Body() body: QuestionBodyDTO, @Req() req) {
         let update: QuestionBodyDTO = { approve: 1 };
         if (req.user.type != 1) {
-            return {
-                statusCode: HttpStatus.FORBIDDEN,
-                msg: "Ошибка разрешения"
-            }
+            throw new UnauthorizedException('Ошибка разрешения')
         }
         await this.faqService.updateQuestion(body.id, update);
         return {
@@ -97,10 +96,7 @@ export class FAQController {
     async disApproveQuestion(@Body() body: QuestionBodyDTO, @Req() req) {
         let update: QuestionBodyDTO = { approve: 2 };
         if (req.user.type != 1) {
-            return {
-                statusCode: HttpStatus.FORBIDDEN,
-                msg: "Ошибка разрешения"
-            }
+            throw new UnauthorizedException('Ошибка разрешения')
         }
         await this.faqService.updateQuestion(body.id, update);
         return {
@@ -132,10 +128,7 @@ export class FAQController {
         const userID = req.user.id;
         const question = await this.faqService.findOneQuestionByUser(body.questionID);
         if (userID == question.user.id)
-            return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Вы являетесь владельцем вопроса"
-            }
+            throw new BadRequestException('Вы являетесь владельцем вопроса')
         await this.faqService.insertAnswer(body, req.user.id)
         return {
             statusCode: HttpStatus.OK,
@@ -166,10 +159,7 @@ export class FAQController {
         const answer = await this.faqService.findOneAnswer(body.id);
         let rating = answer.rating;
         if (userID == answer.user.id)
-            return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                msg: "Вы являетесь владельцем ответа"
-            }
+            throw new BadRequestException('Вы являетесь владельцем ответа')
         const flag = rating.find((a) => { return a == userID });
         if (flag) {
             rating.splice(rating.indexOf(userID), 1);
@@ -187,10 +177,7 @@ export class FAQController {
     @Post('/answer/approve')
     async approveAnswer(@Body() body: AnswerBodyDTO, @Req() req) {
         if (req.user.type != 1) {
-            return {
-                statusCode: HttpStatus.FORBIDDEN,
-                msg: "Ошибка разрешения"
-            }
+            throw new UnauthorizedException('Ошибка разрешения')
         }
         let update: AnswerBodyDTO = { approve: 1 };
         await this.faqService.updateAnswer(body.id, update);
@@ -203,10 +190,7 @@ export class FAQController {
     @Post('/answer/disApprove')
     async disApproveAnswer(@Body() body: AnswerBodyDTO, @Req() req) {
         if (req.user.type != 1) {
-            return {
-                statusCode: HttpStatus.FORBIDDEN,
-                msg: "Ошибка разрешения"
-            }
+            throw new UnauthorizedException('Ошибка разрешения')
         }
         let update: AnswerBodyDTO = { approve: 2 };
         await this.faqService.updateAnswer(body.id, update);
