@@ -19,6 +19,7 @@ export interface NewDirectionBodyDTO {
     description?: string;
     heading?: string;
     bgImg?: string;
+    thumbnail?: string;
     latitude?: number;
     longitude?: number;
     contents?: ContentDTO[];

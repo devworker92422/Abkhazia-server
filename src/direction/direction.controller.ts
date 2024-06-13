@@ -17,8 +17,8 @@ import { ImageService } from "src/image/image.service";
 import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
 import { STANDARD_DATE_FORMAT } from "src/constant";
 import { ImageEntity } from "src/image/image.entity";
-
-
+import * as sharp from 'sharp';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('direction')
 
@@ -59,7 +59,6 @@ export class DirectionController {
         }
     }
 
-
     @Post('/insert')
     @UseGuards(AuthGuard('jwt'))
     async insertNewDirection(
@@ -71,15 +70,15 @@ export class DirectionController {
         }
         const gisCity = await this.gismeteoHttpService.getCityInfo(body.name);
         if (gisCity.total == 0)
-            throw new BadRequestException('Название города неверное!')
+            throw new BadRequestException('Название города неверное!');
+        const imgInfo = body.bgImg.split('/');
+        const thumbnailFileName = `/${imgInfo[0]}/thumbnails-${imgInfo[1]}`;
+        sharp('./upload' + body.bgImg).resize(400, 400).toFile(`./upload${thumbnailFileName}`, (err, resizeImage) => {
+            if (err) console.log(err);
+        });
+        body.thumbnail = thumbnailFileName;
         body.cityID = gisCity.items[0].id;
-        const newDirection = await this.directionService.insert(body);
-        for (const image of body.images) {
-            const updateImage = ImageEntity.create();
-            updateImage.id = image.id
-            updateImage.direction = newDirection;
-            await this.imageService.update(updateImage);
-        }
+        await this.directionService.insert(body);
         return {
             statusCode: HttpStatus.OK,
         }
@@ -94,13 +93,7 @@ export class DirectionController {
         if (req.user.type != 1) {
             throw new UnauthorizedException('Нет разрешения на доступ')
         }
-        const updatedDirection = await this.directionService.update(body);
-        for (const image of body.images) {
-            const updatedImg = ImageEntity.create();
-            updatedImg.id = image.id;
-            updatedImg.direction = updatedDirection;
-            this.imageService.update(updatedImg);
-        }
+        await this.directionService.update(body);
         return {
             statusCode: HttpStatus.OK,
         }

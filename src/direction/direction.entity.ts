@@ -32,6 +32,9 @@ export class DirectionEntity extends BaseEntity {
     bgImg: string;
 
     @Column()
+    thumbnail: string;
+
+    @Column()
     cityID: number;
 
     @Column('double')
