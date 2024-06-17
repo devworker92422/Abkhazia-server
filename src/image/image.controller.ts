@@ -89,6 +89,28 @@ export class ImageController {
         }
     }
 
+    @Post('/meta')
+    @UseInterceptors(FileInterceptor('image', {
+        storage: diskStorage({
+            destination: './upload/meta',
+            filename: (req, file, cb) => {
+                return cb(null, `${Date.now()}${extname(file.originalname)}`);
+            }
+        })
+    }))
+
+    async uploadMetaImage(@UploadedFile() file: Express.Multer.File) {
+        if (!file)
+            return {
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: "Пустое изображение"
+            }
+        return {
+            statusCode: HttpStatus.OK,
+            data: file.filename
+        }
+    }
+
     @Post('/remove')
     async removeImage(@Body() body: RemoveImageBodyDTO) {
         await this.imageService.remove(body.id);

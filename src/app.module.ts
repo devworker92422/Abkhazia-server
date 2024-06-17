@@ -13,6 +13,8 @@ import { BlogModule } from './blog/blog.module';
 import { AuthModule } from './auth/auth.module';
 import { CronModule } from './cron/cron.module';
 import { ImageModule } from './image/image.module';
+import { MetaModule } from './meta/meta.module';
+import { CameraModule } from './camera/camera.module';
 import { UserEntity } from './user/user.entity';
 import { AnswerEntity } from './faq/faq.entity';
 import { QuestionEntity } from './faq/faq.entity';
@@ -22,6 +24,8 @@ import { ContentEntity } from './content/content.entity';
 import { SEOEntity } from './blog/blog.entity';
 import { BlogEntity } from './blog/blog.entity';
 import { ImageEntity } from './image/image.entity';
+import { MetaEntity } from './meta/meta.entity';
+import { CameraEntity } from './camera/camera.entity';
 import configuration from './config/configuration';
 import { join } from 'path';
 
@@ -50,7 +54,9 @@ import { join } from 'path';
         ContentEntity,
         BlogEntity,
         SEOEntity,
-        ImageEntity
+        ImageEntity,
+        MetaEntity,
+        CameraEntity
       ],
       synchronize: true,
       autoLoadEntities: true
@@ -64,7 +70,9 @@ import { join } from 'path';
     AttractionModule,
     BlogModule,
     AuthModule,
-    ImageModule
+    ImageModule,
+    MetaModule,
+    CameraModule
   ],
   controllers: [AppController],
   providers: [],
