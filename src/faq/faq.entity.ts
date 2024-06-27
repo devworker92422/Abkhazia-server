@@ -1,5 +1,14 @@
-import { Entity, BaseEntity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm";
-import { UserEntity } from "src/user/user.entity";
+import { CONFIGURABLE_MODULE_ID } from "@nestjs/common/module-utils/constants";
+import {
+    Entity,
+    BaseEntity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+    ManyToOne,
+    OneToMany
+} from "typeorm";
 
 @Entity()
 export class QuestionEntity extends BaseEntity {
@@ -13,6 +22,15 @@ export class QuestionEntity extends BaseEntity {
     @Column({ default: 0 })
     approve: number;
 
+    @Column()
+    ownerName: string;
+
+    @Column()
+    ownerAvatar: string;
+
+    @Column()
+    active: boolean;
+
     @OneToMany(
         () => AnswerEntity,
         (answers) => answers.question,
@@ -21,14 +39,6 @@ export class QuestionEntity extends BaseEntity {
         }
     )
     answers: AnswerEntity[];
-
-    @ManyToOne(
-        () => UserEntity,
-        (user) => user.questions,
-        {
-        }
-    )
-    user: UserEntity;
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     public createAt: Date;
@@ -49,8 +59,17 @@ export class AnswerEntity extends BaseEntity {
     @Column({ default: 0 })
     approve: number;
 
-    @Column("simple-array")
-    rating: number[];
+    @Column({ default: 0 })
+    rating: number;
+
+    @Column()
+    ownerName: string;
+
+    @Column()
+    ownerAvatar: string;
+
+    @Column({ default: false })
+    isRight: boolean;
 
     @ManyToOne(
         () => QuestionEntity,
@@ -60,12 +79,6 @@ export class AnswerEntity extends BaseEntity {
         }
     )
     question: QuestionEntity;
-
-    @ManyToOne(
-        () => UserEntity,
-        (user) => user.answers,
-    )
-    user: UserEntity;
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     public createAt: Date;

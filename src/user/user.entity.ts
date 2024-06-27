@@ -38,18 +38,6 @@ export class UserEntity extends BaseEntity {
     @Column({ default: 2 })
     type: number;
 
-    @OneToMany(
-        () => QuestionEntity,
-        (question) => question.user,
-    )
-    questions: QuestionEntity[];
-
-    @OneToMany(
-        () => AnswerEntity,
-        (answer) => answer.user,
-    )
-    answers: AnswerEntity[];
-
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     public createAt: Date;
 

@@ -1,10 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { AnswerBodyDTO, QuestionBodyDTO, } from "./faq.dto";
-import { FAQ_RECENT_COUNT } from "src/constant";
+import {
+    NewQuestionBodyDTO,
+    UpdateQuestionBodyDTO,
+    NewAnswerBodyDTO,
+    UpdateAnswerBodyDTO
+} from "./faq.dto";
 import { AnswerEntity } from "./faq.entity";
 import { QuestionEntity } from "./faq.entity";
-import { UserEntity } from "src/user/user.entity";
 
 @Injectable()
 
@@ -13,7 +16,7 @@ export class FAQService {
         private dataSource: DataSource
     ) { }
 
-    getTotalCountOfQuestionByUser(): Promise<number> {
+    getTotalCountOfApprovedQuestion(): Promise<number> {
         return this.dataSource
             .getRepository(QuestionEntity)
             .count({
@@ -23,105 +26,56 @@ export class FAQService {
             });
     }
 
-    getTotalCountOfQuestionByAdmin(whereCond: any): Promise<number> {
+    getTotalCountOfQuestion(): Promise<number> {
         return this.dataSource
             .getRepository(QuestionEntity)
-            .count({
-                where: whereCond
-            });
+            .count();
     }
 
-    async createQuestion(body: QuestionBodyDTO, userID: number): Promise<void> {
-        const question = this.dataSource
+    async createQuestion(body: NewQuestionBodyDTO): Promise<QuestionEntity> {
+        return await this.dataSource
             .getRepository(QuestionEntity)
-            .create();
-        question.questionText = body.questionText;
-        question.user = await this.dataSource
-            .getRepository(UserEntity)
-            .findOne({
-                where: {
-                    id: userID
-                }
-            });
-
-        await question.save();
+            .save(body);
     }
 
-    getRecentlyFAQ(): Promise<QuestionEntity[]> {
+    findAllAciveQuestion(): Promise<QuestionEntity[]> {
         return this.dataSource
             .getRepository(QuestionEntity)
             .find({
                 relations: {
-                    answers: {
-                        user: true
-                    },
-                },
-                select: {
-                    id: true,
-                    questionText: true,
-                    createAt: true,
-                    answers: {
-                        id: true,
-                        rating: true,
-                        answerText: true,
-                        createAt: true,
-                        user: {
-                            type: true,
-                        },
-                    }
+                    answers: true
                 },
                 order: {
                     createAt: 'DESC',
-                    answers: {
-                        rating: 'DESC'
-                    }
                 },
                 where: {
                     approve: 1,
+                    active: true
                 },
-                take: FAQ_RECENT_COUNT
             });
     }
 
-    findAllQuestionByAdmin(limit: number, offset: number, whereCond: Object): Promise<QuestionEntity[]> {
+    findAllQuestion(limit: number, offset: number): Promise<QuestionEntity[]> {
         return this.dataSource
             .getRepository(QuestionEntity)
             .find({
                 relations: {
-                    user: true,
                     answers: true
                 },
                 order: {
                     createAt: 'DESC'
                 },
-                where: whereCond,
                 skip: offset,
                 take: limit
             })
     }
 
-    findAllQuestionByUser(limit: number, offset: number): Promise<QuestionEntity[]> {
+    findAllApprovedQuestion(limit: number, offset: number): Promise<QuestionEntity[]> {
         return this.dataSource
             .getRepository(QuestionEntity)
             .find({
                 relations: {
-                    user: true,
                     answers: true,
-                },
-                select: {
-                    id: true,
-                    questionText: true,
-                    approve: true,
-                    createAt: true,
-                    user: {
-                        firstName: true,
-                        lastName: true,
-                        avatar: true
-                    },
-                    answers: {
-                        id: true,
-                        approve: true,
-                    }
                 },
                 order: {
                     createAt: 'DESC',
@@ -134,97 +88,45 @@ export class FAQService {
             });
     }
 
-    findOneQuestionByAdmin(questionID: number): Promise<QuestionEntity> {
+    findOneQuestion(id: number): Promise<QuestionEntity> {
         return this.dataSource
             .getRepository(QuestionEntity)
             .findOne({
                 relations: {
-                    user: true,
-                    answers: {
-                        user: true
-                    }
+                    answers: true
                 },
                 order: {
                     answers: {
-                        rating: 'DESC',
+                        isRight: 'DESC'
                     }
                 },
                 where: {
-                    id: questionID
+                    id
                 }
             })
     }
 
-    findOneQuestionByUser(questionID: number): Promise<QuestionEntity> {
-        return this.dataSource
-            .getRepository(QuestionEntity)
-            .findOne({
-                relations: {
-                    user: true,
-                    answers: {
-                        user: true
-                    },
-                },
-                select: {
-                    id: true,
-                    questionText: true,
-                    createAt: true,
-                    approve: true,
-                    user: {
-                        firstName: true,
-                        lastName: true,
-                        avatar: true
-                    },
-                    answers: {
-                        id: true,
-                        rating: true,
-                        answerText: true,
-                        createAt: true,
-                        approve: true,
-                        user: {
-                            firstName: true,
-                            lastName: true,
-                            avatar: true,
-                            type: true,
-                        }
-                    }
-                },
-                order: {
-                    answers: {
-                        rating: 'DESC',
-                    }
-                },
-                where: {
-                    id: questionID,
-                }
-            });
-    }
-
-    async updateQuestion(id: number, update: QuestionBodyDTO): Promise<void> {
+    async updateQuestion(id: number, update: UpdateQuestionBodyDTO): Promise<QuestionEntity> {
         await this.dataSource
             .getRepository(QuestionEntity)
-            .update({ id }, update);
+            .update({ id }, update)
+        return this.findOneQuestion(id);
     }
 
-    async removeQuestion(id: number): Promise<void> {
+    async removeQuestion(id: number): Promise<{ id: number }> {
         await this.dataSource
             .getRepository(QuestionEntity)
             .delete(id);
+        return { id };
     }
 
-    async insertAnswer(body: AnswerBodyDTO, userID: number): Promise<void> {
+    async createAnswer(body: NewAnswerBodyDTO): Promise<AnswerEntity> {
         const answer = this.dataSource
             .getRepository(AnswerEntity)
             .create();
         answer.answerText = body.answerText;
-        answer.user = await this.dataSource
-            .getRepository(UserEntity)
-            .findOne({
-                where: {
-                    id: userID
-                }
-            });
-        answer.rating = [];
+        answer.ownerAvatar = body.ownerAvatar;
+        answer.ownerName = body.ownerName;
         answer.question = await this.dataSource
             .getRepository(QuestionEntity)
             .findOne({
@@ -233,15 +135,13 @@ export class FAQService {
                 }
             });
 
-        await answer.save();
+        return await answer.save();
     }
 
-    getTotalCountOfAnswerByAdmin(whereCond: Object): Promise<number> {
+    getTotalCountOfAnswerByAdmin(): Promise<number> {
         return this.dataSource
             .getRepository(AnswerEntity)
-            .count({
-                where: whereCond
-            })
+            .count()
     }
 
     findOneAnswer(id: number): Promise<AnswerEntity> {
@@ -249,7 +149,7 @@ export class FAQService {
             .getRepository(AnswerEntity)
             .findOne({
                 relations: {
-                    user: true
+                    question: true
                 },
                 where: {
                     id
@@ -262,7 +162,6 @@ export class FAQService {
             .getRepository(AnswerEntity)
             .find({
                 relations: {
-                    user: true,
                     question: true
                 },
                 where: whereCond,
@@ -274,16 +173,18 @@ export class FAQService {
             })
     }
 
-    async updateAnswer(id: number, update: AnswerBodyDTO): Promise<void> {
+    async updateAnswer(id: number, update: UpdateAnswerBodyDTO): Promise<AnswerEntity> {
         await this.dataSource
             .getRepository(AnswerEntity)
             .update({ id }, update);
+        return this.findOneAnswer(id);
     }
 
-    async removeAnswer(id: number): Promise<void> {
+    async removeAnswer(id: number): Promise<{ id: number }> {
         await this.dataSource
             .getRepository(AnswerEntity)
             .delete(id);
+        return { id }
     }
 
 }

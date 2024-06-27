@@ -1,27 +1,34 @@
-export interface QuestionBodyDTO {
-    id?: number;
+export interface NewQuestionBodyDTO {
+    ownewrName: string;
+    ownerAvatar?: string;
+    questionText: string;
+}
+
+export interface UpdateQuestionBodyDTO {
+    ownewrName?: string;
+    ownerAvatar?: string;
     questionText?: string;
     approve?: number;
+    active?: boolean;
+
 }
 
+export interface ListAllEntities {
+    limit: number,
+    offset: number
+}
 
-export interface AnswerBodyDTO {
-    id?: number;
-    questionID?: number;
+export interface NewAnswerBodyDTO {
+    ownerName: string;
+    ownerAvatar?: string;
+    answerText: string;
+    questionID: number;
+}
+
+export interface UpdateAnswerBodyDTO {
+    ownerName?: string;
+    ownerAvatar?: string;
     answerText?: string;
-    rating?: number[];
-    approve?: number;
-}
-
-export interface FAQBodyDTO {
-    limit: number;
-    offset: number;
-}
-
-export interface FAQListBodyDTO {
-    limit: number;
-    offset: number;
-    userID?: number;
-    text?: string;
-    approve?: number;
+    isRight?: boolean;
+    rating?: number;
 }

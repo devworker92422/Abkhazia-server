@@ -18,7 +18,6 @@ import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
 import { STANDARD_DATE_FORMAT } from "src/constant";
 import { ImageEntity } from "src/image/image.entity";
 import * as sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
 
 @Controller('direction')
 
