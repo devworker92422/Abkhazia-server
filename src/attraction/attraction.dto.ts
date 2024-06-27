@@ -2,8 +2,9 @@ import { ContentDTO } from "src/content/content.dto";
 import { ImageBodyDTO } from "src/image/image.dto";
 
 export interface NewAttractionBodyDTO {
-    id?: number;
-    directionID?: number;
+    direction?: {
+        id?: number
+    }
     name?: string;
     description?: string;
     bgImg?: string;
@@ -11,12 +12,30 @@ export interface NewAttractionBodyDTO {
     longitude?: number;
     heading?: string;
     contents?: ContentDTO[];
-    images?: ImageBodyDTO[]
 }
 
-export interface AttractionBodyDTO {
+export interface UpdateAttractionBodyDTO {
+    attraction?: {
+        name?: string;
+        description?: string;
+        bgImg?: string;
+        latitude?: number;
+        longitude?: number;
+        heading?: string;
+        directionID?: number;
+    },
+    direction?: {
+        id: number;
+    }
+    contents?: {
+        new?: ContentDTO[],
+        update?: ContentDTO[],
+        remove?: number[]
+    }
+}
+
+export interface ListAllEntities {
+    limit: number;
+    offset: number;
     directionID?: number;
-    attractionID?: number;
-    limit?: number;
-    offset?: number;
 }

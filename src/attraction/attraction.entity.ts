@@ -37,6 +37,9 @@ export class AttractionEntity extends BaseEntity {
     @Column('text')
     heading: string;
 
+    @Column({ default: false })
+    active: boolean;
+
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     public createAt: Date;
 
@@ -62,6 +65,7 @@ export class AttractionEntity extends BaseEntity {
         () => DirectionEntity,
         (direction) => direction.attractions,
         {
+            orphanedRowAction: 'delete',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         }

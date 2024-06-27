@@ -2,8 +2,7 @@ import { DataSource } from "typeorm";
 import { Injectable } from "@nestjs/common";
 import { AttractionEntity } from "./attraction.entity";
 import { DirectionEntity } from "src/direction/direction.entity";
-import { NewAttractionBodyDTO, AttractionBodyDTO } from "./attraction.dto";
-import { ATTRACTION_RECENT_COUNT } from "src/constant";
+import { NewAttractionBodyDTO, ListAllEntities, UpdateAttractionBodyDTO } from "./attraction.dto";
 import { ContentEntity } from "src/content/content.entity";
 
 @Injectable()
@@ -13,21 +12,10 @@ export class AttractionService {
         private dataSource: DataSource
     ) { }
 
-    async insert(attraction: NewAttractionBodyDTO): Promise<AttractionEntity> {
-        const newAttraction = this.dataSource
-            .getRepository(AttractionEntity)
-            .create(attraction);
-        const direction = await this.dataSource
-            .getRepository(DirectionEntity)
-            .findOne({
-                where: {
-                    id: attraction.directionID
-                }
-            });
-        newAttraction.direction = direction;
+    async create(attraction: NewAttractionBodyDTO): Promise<AttractionEntity> {
         return await this.dataSource
             .getRepository(AttractionEntity)
-            .save(newAttraction);
+            .save({ ...attraction, direction: { id: attraction.direction.id } });
     }
 
     getTotalCount(directionID?: number): Promise<number> {
@@ -43,7 +31,7 @@ export class AttractionService {
             });
     }
 
-    findRecently(): Promise<AttractionEntity[]> {
+    findAllActive(): Promise<AttractionEntity[]> {
         return this.dataSource
             .getRepository(AttractionEntity)
             .find({
@@ -55,11 +43,13 @@ export class AttractionService {
                 order: {
                     createAt: 'DESC'
                 },
-                take: ATTRACTION_RECENT_COUNT,
+                where: {
+                    active: true
+                }
             })
     }
 
-    findAll(body: AttractionBodyDTO): Promise<AttractionEntity[]> {
+    findAll(body: ListAllEntities): Promise<AttractionEntity[]> {
         const whereCond: Object = body.directionID ? {
             direction: {
                 id: body.directionID
@@ -104,10 +94,10 @@ export class AttractionService {
                         question: true,
                         content: true
                     },
-                    images: {
-                        id: true,
-                        url: true
-                    }
+                    // images: {
+                    //     id: true,
+                    //     url: true
+                    // }
                 },
                 where: {
                     id: attractionID
@@ -115,44 +105,33 @@ export class AttractionService {
             })
     }
 
-    async update(attraction: NewAttractionBodyDTO): Promise<AttractionEntity> {
-        const contents = attraction.contents;
-        delete attraction.contents;
-        const update = await this.dataSource
-            .getRepository(AttractionEntity)
-            .findOne({
-                relations: {
-                    contents: true,
-                },
-                where: {
-                    id: attraction.id
-                }
-            });
-        update.direction = await this.dataSource
-            .getRepository(DirectionEntity)
-            .findOne({ where: { id: attraction.directionID } });
-        update.name = attraction.name;
-        update.bgImg = attraction.bgImg;
-        update.description = attraction.description;
-        update.heading = attraction.heading;
-        update.latitude = attraction.latitude;
-        update.longitude = attraction.longitude;
-        update.contents = [];
-        for (const content of contents) {
-            const newContent = await this.dataSource
-                .getRepository(ContentEntity)
-                .save(content);
-            update.contents.push(newContent);
-        }
-        return await this.dataSource
-            .getRepository(AttractionEntity)
-            .save(update);
-    }
-
-    async remove(attractionID: number): Promise<void> {
+    async update(id: number, update: UpdateAttractionBodyDTO): Promise<AttractionEntity> {
         await this.dataSource
             .getRepository(AttractionEntity)
-            .delete(attractionID);
+            .update({ id }, { ...update.attraction, direction: { id: update?.direction?.id } });
+        update?.contents?.new?.map(async (a) => {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .save({ ...a, attraction: { id } });
+        });
+        update?.contents?.update?.map(async (a) => {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .update({ id: a.id }, a)
+        });
+        update?.contents?.remove?.map(async (a) => {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .delete(a);
+        });
+        return this.findOne(id);
 
+    }
+
+    async remove(id: number): Promise<{ id: number }> {
+        await this.dataSource
+            .getRepository(AttractionEntity)
+            .delete(id);
+        return { id }
     }
 }

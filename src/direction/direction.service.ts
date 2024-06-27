@@ -111,21 +111,21 @@ export class DirectionService {
         await this.dataSource
             .getRepository(DirectionEntity)
             .update({ id }, update.direction);
-        for (let content of update.contents.new) {
+        update?.contents?.new?.map(async (a) => {
             await this.dataSource
                 .getRepository(ContentEntity)
-                .save({ ...content, direction: { id } });
-        }
-        for (let content of update.contents.update) {
+                .save({ ...a, direction: { id } });
+        });
+        update?.contents?.update?.map(async (a) => {
             await this.dataSource
                 .getRepository(ContentEntity)
-                .update(content.id, content)
-        }
-        for (let content of update.contents.remove) {
+                .update({ id: a.id }, a)
+        });
+        update?.contents?.remove?.map(async (a) => {
             await this.dataSource
                 .getRepository(ContentEntity)
-                .delete(content)
-        }
+                .delete(a);
+        });
         return this.findOne(id);
     }
 

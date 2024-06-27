@@ -4,15 +4,18 @@ import {
     Post,
     Get,
     Body,
-    Req,
-    UseGuards,
-    UnauthorizedException
+    Param,
+    Query,
+    Delete,
+    Put
 } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import { AttractionService } from "./attraction.service";
 import { ImageService } from "src/image/image.service";
-import { ImageEntity } from "src/image/image.entity";
-import { AttractionBodyDTO, NewAttractionBodyDTO } from "./attraction.dto";
+import {
+    ListAllEntities,
+    NewAttractionBodyDTO,
+    UpdateAttractionBodyDTO
+} from "./attraction.dto";
 
 @Controller('attraction')
 
@@ -22,85 +25,61 @@ export class AttractionController {
         private imageService: ImageService
     ) { }
 
-    @Post('/insert')
-    @UseGuards(AuthGuard('jwt'))
-    async insertNewAttraction(
+    // User Routes
+
+    @Get('active')
+    async getActiveAttraction() {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.attractionService.findAllActive()
+        }
+    }
+
+    @Get()
+    async getAttractions(@Query() query: ListAllEntities) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.attractionService.findAll(query),
+            total: await this.attractionService.getTotalCount(query.directionID),
+        }
+    }
+
+    @Get(':id')
+    async getAttraction(@Param('id') id: string) {
+        return {
+            statusCode: HttpStatus.OK,
+            data: await this.attractionService.findOne(parseInt(id))
+        }
+    }
+
+    // Admin Routes
+
+    @Post()
+    async createAttraction(
         @Body() body: NewAttractionBodyDTO,
-        @Req() req
     ) {
-        if (req.user.type != 1) {
-            throw new UnauthorizedException('Нет разрешения на доступ')
-        }
-        const newAttraction = await this.attractionService.insert(body);
-        for (const image of body.images) {
-            const updatedImage = ImageEntity.create();
-            updatedImage.id = image.id;
-            updatedImage.attraction = newAttraction;
-            await this.imageService.update(updatedImage);
-        }
-        return {
-            statusCode: HttpStatus.OK
-        }
-    }
-
-    @Post('/')
-    async getAttractions(@Body() body: AttractionBodyDTO) {
         return {
             statusCode: HttpStatus.OK,
-            data: await this.attractionService.findAll(body),
-            total: await this.attractionService.getTotalCount(body.directionID),
+            data: await this.attractionService.create(body)
         }
     }
 
-    @Get('/recent')
-    async getRecently() {
-        return {
-            statusCode: HttpStatus.OK,
-            data: await this.attractionService.findRecently()
-        }
-    }
-
-    @Post('/detail')
-    async getAttraction(@Body() body: AttractionBodyDTO) {
-        return {
-            statusCode: HttpStatus.OK,
-            data: await this.attractionService.findOne(body.attractionID)
-        }
-    }
-
-    @Post('/update')
-    @UseGuards(AuthGuard('jwt'))
+    @Put(':id')
     async updateAttraction(
-        @Body() body: NewAttractionBodyDTO,
-        @Req() req
+        @Param('id') id: string,
+        @Body() body: UpdateAttractionBodyDTO,
     ) {
-        if (req.user.type != 1) {
-            throw new UnauthorizedException('Нет разрешения на доступ')
-        }
-        const updatedDirection = await this.attractionService.update(body);
-        for (const image of body.images) {
-            const updatedImage = ImageEntity.create();
-            updatedImage.id = image.id;
-            updatedImage.attraction = updatedDirection;
-            await this.imageService.update(updatedImage);
-        }
         return {
-            statusCode: HttpStatus.OK
+            statusCode: HttpStatus.OK,
+            data: await this.attractionService.update(parseInt(id), body)
         };
     }
 
-    @Post('/remove')
-    @UseGuards(AuthGuard('jwt'))
-    async removeAttraction(
-        @Body() body: AttractionBodyDTO,
-        @Req() req
-    ) {
-        if (req.user.type != 1) {
-            throw new UnauthorizedException('Нет разрешения на доступ')
-        }
-        await this.attractionService.remove(body.attractionID);
+    @Delete(':id')
+    async removeAttraction(@Param('id') id: string) {
         return {
-            statusCode: HttpStatus.OK
+            statusCode: HttpStatus.OK,
+            data: await this.attractionService.remove(parseInt(id))
         };
     }
 }

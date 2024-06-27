@@ -16,7 +16,7 @@ export interface NewDirectionBodyDTO {
 }
 
 export interface UpdateDirectionBodyDTO {
-    direction: {
+    direction?: {
         title?: string;
         description?: string;
         heading?: string;
@@ -25,11 +25,11 @@ export interface UpdateDirectionBodyDTO {
         latitude?: number;
         longitude?: number;
         active?: boolean;
-    }
-    contents: {
-        new: ContentDTO[],
-        update: ContentDTO[],
-        remove: number[]
+    },
+    contents?: {
+        new?: ContentDTO[],
+        update?: ContentDTO[],
+        remove?: number[]
     };
 }
 
