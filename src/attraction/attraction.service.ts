@@ -108,7 +108,10 @@ export class AttractionService {
     async update(id: number, update: UpdateAttractionBodyDTO): Promise<AttractionEntity> {
         await this.dataSource
             .getRepository(AttractionEntity)
-            .update({ id }, { ...update.attraction, direction: { id: update?.direction?.id } });
+            .update({ id }, update?.direction ? {
+                ...update.attraction,
+                direction: { id: update?.direction?.id }
+            } : { ...update.attraction });
         update?.contents?.new?.map(async (a) => {
             await this.dataSource
                 .getRepository(ContentEntity)

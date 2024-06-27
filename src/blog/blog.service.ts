@@ -90,7 +90,7 @@ export class BlogService {
             });
     }
 
-    findRecentlyBlog(): Promise<BlogEntity[]> {
+    findAllActiveBlog(): Promise<BlogEntity[]> {
         return this.dataSource
             .getRepository(BlogEntity)
             .find({
@@ -103,7 +103,9 @@ export class BlogService {
                 order: {
                     createAt: 'DESC'
                 },
-                take: BLOG_RECENT_COUNT
+                where: {
+                    active: true
+                }
             })
     }
 

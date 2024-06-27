@@ -28,6 +28,9 @@ export class BlogEntity extends BaseEntity {
     @Column()
     bgImg: string;
 
+    @Column({ default: false })
+    active: boolean;
+
     @OneToMany(
         () => ContentEntity,
         (content) => content.blog,

@@ -14,7 +14,7 @@ import { BlogService } from "./blog.service";
 import { ImageService } from "src/image/image.service";
 import { ImageEntity } from "src/image/image.entity";
 
-@Controller('/blog')
+@Controller('blog')
 
 export class BlogController {
     constructor(
@@ -22,29 +22,19 @@ export class BlogController {
         private imageService: ImageService
     ) { }
 
-    @Get('/recentBlog')
-    async getRecent() {
+    @Get('active')
+    async getActiveBlog() {
         return {
             statusCode: HttpStatus.OK,
-            data: await this.blogService.findRecentlyBlog()
+            data: await this.blogService.findAllActiveBlog()
         }
     }
 
-    @Post('/createBlog')
-    @UseGuards(AuthGuard('jwt'))
+    @Post('article')
     async insertBlog(
-        @Body() body: NewBlogBodyDTO,
-        @Req() req
+        @Body() body: NewBlogBodyDTO
     ) {
-        if (req.user.type != 1)
-            throw new UnauthorizedException('Нет разрешения на доступ')
         const newBlog = await this.blogService.insertBlog(body);
-        for (const image of body.images) {
-            const updatedImg = ImageEntity.create();
-            updatedImg.id = image.id;
-            updatedImg.blog = newBlog;
-            await this.imageService.update(updatedImg);
-        }
         return {
             statusCode: HttpStatus.OK,
         }
