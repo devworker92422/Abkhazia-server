@@ -23,6 +23,7 @@ export interface UpdateAttractionBodyDTO {
         longitude?: number;
         heading?: string;
         directionID?: number;
+        active?: boolean;
     },
     direction?: {
         id: number;
