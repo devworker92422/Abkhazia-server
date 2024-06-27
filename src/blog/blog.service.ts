@@ -171,7 +171,7 @@ export class BlogService {
             .getRepository(BlogEntity)
             .findOneBy({ id });
         blog.seos = [];
-        update.seos.map(async (a) => {
+        update?.seos?.map(async (a) => {
             const seo = await this.dataSource
                 .getRepository(SEOEntity)
                 .findOneBy({ id: a.id });

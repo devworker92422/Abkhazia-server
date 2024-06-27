@@ -33,5 +33,5 @@ export interface UpdateBlogBodyDTO {
         update?: ContentDTO[];
         remove?: number[];
     },
-    seos: SEODTO[];
+    seos?: SEODTO[];
 }
