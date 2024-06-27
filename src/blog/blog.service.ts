@@ -123,6 +123,7 @@ export class BlogService {
                     id: true,
                     title: true,
                     bgImg: true,
+                    active: true,
                     createAt: true
                 },
                 where: {

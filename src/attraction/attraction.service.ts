@@ -62,6 +62,7 @@ export class AttractionService {
                     id: true,
                     name: true,
                     bgImg: true,
+                    active: true,
                     direction: {
                         id: true
                     }
@@ -89,6 +90,7 @@ export class AttractionService {
                     latitude: true,
                     longitude: true,
                     createAt: true,
+                    active: true,
                     contents: {
                         id: true,
                         question: true,
