@@ -46,6 +46,9 @@ export class DirectionEntity extends BaseEntity {
     @Column('text')
     heading: string;
 
+    @Column({ default: false })
+    active: boolean;
+
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     public createAt: Date;
 

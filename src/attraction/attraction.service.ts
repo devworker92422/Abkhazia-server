@@ -153,5 +153,6 @@ export class AttractionService {
         await this.dataSource
             .getRepository(AttractionEntity)
             .delete(attractionID);
+
     }
 }

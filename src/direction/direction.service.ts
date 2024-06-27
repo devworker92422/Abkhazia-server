@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { DirectionEntity } from "./direction.entity";
-import { DIRECTION_RECENT_COUNT } from "src/constant";
-import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
+import { NewDirectionBodyDTO, UpdateDirectionBodyDTO } from "./direction.dto";
 import { ContentEntity } from "src/content/content.entity";
 
 @Injectable()
@@ -13,7 +12,7 @@ export class DirectionService {
         private dataSource: DataSource
     ) { }
 
-    async insert(direction: NewDirectionBodyDTO): Promise<DirectionEntity> {
+    async create(direction: NewDirectionBodyDTO): Promise<DirectionEntity> {
         return await this.dataSource
             .getRepository(DirectionEntity)
             .save(direction)
@@ -25,23 +24,7 @@ export class DirectionService {
             .count();
     }
 
-    findRecently(): Promise<DirectionEntity[]> {
-        return this.dataSource
-            .getRepository(DirectionEntity)
-            .find({
-                select: {
-                    id: true,
-                    name: true,
-                    bgImg: true
-                },
-                order: {
-                    name: 'ASC'
-                },
-                take: DIRECTION_RECENT_COUNT
-            })
-    }
-
-    findAll(body: DirectionBodyDTO): Promise<DirectionEntity[]> {
+    findAllActive(): Promise<DirectionEntity[]> {
         return this.dataSource
             .getRepository(DirectionEntity)
             .find({
@@ -49,13 +32,33 @@ export class DirectionService {
                     id: true,
                     name: true,
                     bgImg: true,
-                    heading: true
+                    active: true
                 },
                 order: {
                     name: 'ASC'
                 },
-                take: body.limit,
-                skip: body.offset
+                where: {
+                    active: true
+                }
+            })
+    }
+
+    findAll(limit: number, offset: number): Promise<DirectionEntity[]> {
+        return this.dataSource
+            .getRepository(DirectionEntity)
+            .find({
+                select: {
+                    id: true,
+                    name: true,
+                    bgImg: true,
+                    heading: true,
+                    active: true,
+                },
+                order: {
+                    name: 'ASC'
+                },
+                take: limit,
+                skip: offset
             });
     }
 
@@ -78,6 +81,7 @@ export class DirectionService {
                     latitude: true,
                     longitude: true,
                     heading: true,
+                    active: true,
                     contents: {
                         id: true,
                         question: true,
@@ -92,10 +96,10 @@ export class DirectionService {
                         waterTemp: true,
                         airTemp: true
                     },
-                    images: {
-                        id: true,
-                        url: true
-                    }
+                    // images: {
+                    //     id: true,
+                    //     url: true
+                    // }
                 },
                 where: {
                     id: directionID,
@@ -103,43 +107,33 @@ export class DirectionService {
             });
     }
 
-    async update(direction: NewDirectionBodyDTO): Promise<DirectionEntity> {
-        const updatedDirection = await this.dataSource
-            .getRepository(DirectionEntity)
-            .findOne({
-                relations: {
-                    contents: true
-                },
-                where: {
-                    id: direction.id
-                }
-            });
-        const contents = direction.contents;
-        delete direction.contents;
-        updatedDirection.bgImg = direction.bgImg;
-        updatedDirection.name = direction.name;
-        updatedDirection.description = direction.description;
-        updatedDirection.heading = direction.heading;
-        updatedDirection.longitude = direction.longitude;
-        updatedDirection.latitude = direction.latitude;
-        updatedDirection.title = direction.title;
-        updatedDirection.name = direction.name;
-        updatedDirection.contents = [];
-        for (const content of contents) {
-            const newContent = await this.dataSource
-                .getRepository(ContentEntity)
-                .save(content);
-            updatedDirection.contents.push(newContent);
-        }
-        return await this.dataSource
-            .getRepository(DirectionEntity)
-            .save(updatedDirection);
-    }
-
-    async remove(directionID: number) {
+    async update(id: number, update: UpdateDirectionBodyDTO): Promise<DirectionEntity> {
         await this.dataSource
             .getRepository(DirectionEntity)
-            .delete(directionID);
+            .update({ id }, update.direction);
+        for (let content of update.contents.new) {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .save({ ...content, direction: { id } });
+        }
+        for (let content of update.contents.update) {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .update(content.id, content)
+        }
+        for (let content of update.contents.remove) {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .delete(content)
+        }
+        return this.findOne(id);
+    }
+
+    async remove(id: number): Promise<{ id: number }> {
+        await this.dataSource
+            .getRepository(DirectionEntity)
+            .delete(id);
+        return { id }
     }
 
 }
