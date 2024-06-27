@@ -16,7 +16,6 @@ import { DirectionService } from "./direction.service";
 import { ImageService } from "src/image/image.service";
 import { DirectionBodyDTO, NewDirectionBodyDTO } from "./direction.dto";
 import { STANDARD_DATE_FORMAT } from "src/constant";
-import { ImageEntity } from "src/image/image.entity";
 import * as sharp from 'sharp';
 
 @Controller('direction')

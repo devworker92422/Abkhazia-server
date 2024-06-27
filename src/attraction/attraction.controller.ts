@@ -14,7 +14,7 @@ import { ImageService } from "src/image/image.service";
 import { ImageEntity } from "src/image/image.entity";
 import { AttractionBodyDTO, NewAttractionBodyDTO } from "./attraction.dto";
 
-@Controller('/attraction')
+@Controller('attraction')
 
 export class AttractionController {
     constructor(

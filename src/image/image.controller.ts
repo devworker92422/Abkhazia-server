@@ -99,6 +99,29 @@ export class ImageController {
         })
     }))
 
+    async uploadAvatarImage(@UploadedFile() file: Express.Multer.File) {
+        if (!file)
+            return {
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: "Пустое изображение"
+            }
+        return {
+            statusCode: HttpStatus.OK,
+            data: file.filename
+        }
+    }
+
+
+    @Post('/avatar')
+    @UseInterceptors(FileInterceptor('image', {
+        storage: diskStorage({
+            destination: './upload/avatar',
+            filename: (req, file, cb) => {
+                return cb(null, `${Date.now()}${extname(file.originalname)}`);
+            }
+        })
+    }))
+
     async uploadMetaImage(@UploadedFile() file: Express.Multer.File) {
         if (!file)
             return {
