@@ -1,11 +1,10 @@
 import { ContentDTO } from "src/content/content.dto";
 import { ImageBodyDTO } from "src/image/image.dto";
 
-export interface BlogBodyDTO {
-    id?: number;
-    limit?: number;
-    offset?: number;
-    seos?: SEODTO[];
+export interface ListAllEntities {
+    limit: number;
+    offset: number;
+    seo?: SEODTO[];
 }
 
 export interface SEODTO {
@@ -13,17 +12,26 @@ export interface SEODTO {
     keyword?: string;
 }
 
-export interface SEOListBodyDTO {
-    limit: number;
-    offset: number;
-}
-
 export interface NewBlogBodyDTO {
-    id?: number;
     title?: string;
     description?: string;
     bgImg?: string;
     contents?: ContentDTO[];
     seos?: SEODTO[];
     images?: ImageBodyDTO[];
+}
+
+export interface UpdateBlogBodyDTO {
+    blog?: {
+        title?: string;
+        description?: string;
+        bgImg?: string;
+        active?: boolean;
+    },
+    contents?: {
+        new?: ContentDTO[];
+        update?: ContentDTO[];
+        remove?: number[];
+    },
+    seos: SEODTO[];
 }

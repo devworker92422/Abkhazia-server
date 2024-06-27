@@ -1,8 +1,12 @@
-import { Body, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { BlogEntity, SEOEntity } from "./blog.entity";
-import { BlogBodyDTO, NewBlogBodyDTO, SEODTO, SEOListBodyDTO } from "./blog.dto";
-import { BLOG_RECENT_COUNT } from "src/constant";
+import {
+    ListAllEntities,
+    NewBlogBodyDTO,
+    UpdateBlogBodyDTO,
+    SEODTO,
+} from "./blog.dto";
 import { ContentEntity } from "src/content/content.entity";
 
 @Injectable()
@@ -12,8 +16,8 @@ export class BlogService {
         private dataSource: DataSource
     ) { }
 
-    async insertSEO(seo: SEODTO): Promise<void> {
-        await this.dataSource
+    async createSEO(seo: SEODTO): Promise<SEODTO> {
+        return await this.dataSource
             .getRepository(SEOEntity)
             .save(seo)
     }
@@ -24,15 +28,15 @@ export class BlogService {
             .count();
     }
 
-    findSEOList(@Body() body: SEOListBodyDTO): Promise<SEOEntity[]> {
+    findAllPaginatedSEO(limit: number, offset: number): Promise<SEOEntity[]> {
         return this.dataSource
             .getRepository(SEOEntity)
             .find({
                 order: {
                     createAt: 'desc'
                 },
-                skip: body.offset,
-                take: body.limit
+                skip: offset,
+                take: limit
             })
     }
 
@@ -60,32 +64,34 @@ export class BlogService {
             });
     }
 
-    async updateSEO(seo: SEODTO): Promise<void> {
+    async updateSEO(id: number, update: SEODTO): Promise<SEOEntity> {
         await this.dataSource
             .getRepository(SEOEntity)
-            .update({ id: seo.id }, seo);
+            .update({ id }, update);
+        return this.findOneSEO(update.keyword);
     }
 
-    async removeSEO(id: number): Promise<void> {
+    async removeSEO(id: number): Promise<{ id: number }> {
         await this.dataSource
             .getRepository(SEOEntity)
             .delete(id);
+        return { id }
     }
 
 
 
-    async insertBlog(blog: NewBlogBodyDTO): Promise<BlogEntity> {
+    async createBlog(blog: NewBlogBodyDTO): Promise<BlogEntity> {
         return await this.dataSource
             .getRepository(BlogEntity)
             .save(blog)
     }
 
-    getBlogTotalCount(body: BlogBodyDTO): Promise<Number> {
+    getBlogTotalCount(body: ListAllEntities): Promise<Number> {
         return this.dataSource
             .getRepository(BlogEntity)
             .count({
                 where: {
-                    seos: body.seos
+                    seos: body.seo
                 }
             });
     }
@@ -109,7 +115,7 @@ export class BlogService {
             })
     }
 
-    findAllBlog(body: BlogBodyDTO): Promise<BlogEntity[]> {
+    findAllBlog(body: ListAllEntities): Promise<BlogEntity[]> {
         return this.dataSource
             .getRepository(BlogEntity)
             .find({
@@ -120,7 +126,7 @@ export class BlogService {
                     createAt: true
                 },
                 where: {
-                    seos: body.seos,
+                    seos: body.seo,
                 },
                 take: body.limit,
                 skip: body.offset,
@@ -157,45 +163,46 @@ export class BlogService {
             });
     }
 
-    async updateBlog(body: NewBlogBodyDTO): Promise<BlogEntity> {
-        const update = await this.dataSource
-            .getRepository(BlogEntity)
-            .findOne({
-                relations: {
-                    contents: true
-                },
-                where: {
-                    id: body.id
-                }
-            });
-        update.seos = [];
-        for (const seo of body.seos) {
-            const updatedSEO = await this.dataSource
-                .getRepository(SEOEntity)
-                .findOne({
-                    where: { id: seo.id }
-                });
-            update.seos.push(updatedSEO)
-        }
-        update.contents = [];
-        for (const content of body.contents) {
-            const updatedContent = await this.dataSource
-                .getRepository(ContentEntity)
-                .save(content);
-            update.contents.push(updatedContent);
-        }
-        update.title = body.title;
-        update.bgImg = body.bgImg;
-        update.description = body.description;
-        return await this.dataSource
-            .getRepository(BlogEntity)
-            .save(update);
-    }
-
-    async removeBlog(blogID: number): Promise<void> {
+    async updateBlog(id: number, update: UpdateBlogBodyDTO): Promise<BlogEntity> {
         await this.dataSource
             .getRepository(BlogEntity)
-            .delete(blogID);
+            .update({ id }, { ...update.blog });
+        const blog = await this.dataSource
+            .getRepository(BlogEntity)
+            .findOneBy({ id });
+        blog.seos = [];
+        update.seos.map(async (a) => {
+            const seo = await this.dataSource
+                .getRepository(SEOEntity)
+                .findOneBy({ id: a.id });
+            blog.seos.push(seo);
+        })
+        await this.dataSource
+            .getRepository(BlogEntity)
+            .save(blog);
+        update?.contents?.new?.map(async (a) => {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .save({ ...a, blog: { id } });
+        });
+        update?.contents?.update?.map(async (a) => {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .update({ id: a.id }, a)
+        });
+        update?.contents?.remove?.map(async (a) => {
+            await this.dataSource
+                .getRepository(ContentEntity)
+                .delete(a)
+        });
+        return this.findOneBlog(id);
+    }
+
+    async removeBlog(id: number): Promise<{ id: number }> {
+        await this.dataSource
+            .getRepository(BlogEntity)
+            .delete(id);
+        return { id };
     }
 
 }
