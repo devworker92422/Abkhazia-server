@@ -15,7 +15,7 @@ export class AttractionService {
     async create(attraction: NewAttractionBodyDTO): Promise<AttractionEntity> {
         return await this.dataSource
             .getRepository(AttractionEntity)
-            .save({ ...attraction, direction: { id: attraction.direction.id } });
+            .save({ ...attraction, direction: { id: attraction.directionID } });
     }
 
     getTotalCount(directionID?: number): Promise<number> {

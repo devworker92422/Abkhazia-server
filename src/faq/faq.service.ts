@@ -97,7 +97,7 @@ export class FAQService {
                 },
                 order: {
                     answers: {
-                        isRight: 'DESC'
+                        createAt: 'DESC'
                     }
                 },
                 where: {

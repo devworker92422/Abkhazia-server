@@ -18,7 +18,7 @@ export class ImageController {
     @Post('/direction')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './upload/direction',
+            destination: './upload/img/direction',
             filename: (req, file, cb) => {
                 return cb(null, `${Date.now()}${extname(file.originalname)}`);
             }
@@ -43,7 +43,7 @@ export class ImageController {
     @Post('/attraction')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './upload/attraction',
+            destination: './upload/img/attraction',
             filename: (req, file, cb) => {
                 return cb(null, `${Date.now()}${extname(file.originalname)}`);
             }
@@ -67,7 +67,7 @@ export class ImageController {
     @Post('/blog')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './upload/blog',
+            destination: './upload/img/blog',
             filename: (req, file, cb) => {
                 return cb(null, `${Date.now()}${extname(file.originalname)}`);
             }
@@ -92,7 +92,7 @@ export class ImageController {
     @Post('/meta')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './upload/meta',
+            destination: './upload/img/meta',
             filename: (req, file, cb) => {
                 return cb(null, `${Date.now()}${extname(file.originalname)}`);
             }
@@ -115,7 +115,7 @@ export class ImageController {
     @Post('/avatar')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './upload/avatar',
+            destination: './upload/img/avatar',
             filename: (req, file, cb) => {
                 return cb(null, `${Date.now()}${extname(file.originalname)}`);
             }
